@@ -97,22 +97,13 @@ c>d Yes            ← 元>先 ラベル
 - 「呼出」図形の「詳細 ↗」から、そのページへ移動できます(「← 戻る」で戻る)。
 - 書き出し: `.fc`(読み方ルール付き)/ SVG。
 
-## ほかのパソコンから使う(安全のための設計)
-
-**初期設定では、起動したパソコン自身からしか使えません。** サーバに置いて起動しただけでは外部に公開されず、ほかの相手には中身のない白いページを返します。
-
-家庭・社内のネットワークで共有するときは、使ってよい範囲を指定します。
-```bash
-uv run zuplan --serve --host 0.0.0.0 --allow 192.168.1.0/24
-```
-- `--allow` に指定できるのは、家庭・社内のネットワーク(`192.168.x.x` / `10.x.x.x` / `172.16〜31.x.x` など)の範囲だけです。**インターネットに公開する設定はありません。**
-- 使える人の中では、図のURLを知っている人がその図を編集できます(個人ごとのログインはありません)。
-- 詳しくは [SECURITY.md](SECURITY.md) を見てください。
+## 手元のパソコンで使うツールです
+Zuplan は、自分のパソコンの中で使う便利ツールです。サーバに置いてインターネットに公開する用途は想定しておらず、ほかのパソコンからのアクセスには応答しません([SECURITY.md](SECURITY.md))。
 
 ## コマンド一覧
 ```bash
 uv run zuplan --serve [file.fc | file.py]   # エディタを起動(ファイルを渡すと取り込んで開く)
-     --port 8000  --db data/flowchart.db  --host 127.0.0.1  --allow <範囲>
+     --port 8000  --db data/flowchart.db
 uv run zuplan my.py --fc                    # Python コード → .fc(out/my.fc)
 uv run zuplan my.py --html                  # Python コード → Mermaid の HTML(out/my.html)
 uv run zuplan old.fc --diff new.fc          # 2つの .fc の意味的な差分
