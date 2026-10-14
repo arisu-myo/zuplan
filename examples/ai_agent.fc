@@ -1,0 +1,208 @@
+fc1 ; 読み方: FC_RULES.md
+## 全体像
+N1 start 質問を受けたら開始
+N2 screen 質問入力
+N3 call 資料を検索 [Agent.retrieve]
+; 類似度0.35未満は捨てる。上位5件まで
+N4 db 文書インデックス
+N5 call 履歴を整える [Agent.trim_history]
+N6 call モデルに問い合わせ [Agent.call_llm]
+; タイムアウトは最大3回まで再試行
+N7 if 応答の種類は?
+N8 call ツールを実行 [Agent.use_tool]
+N9 io 回答を表示
+N10 io 謝罪メッセージを表示
+N11 end 終了
+N12 data 会話履歴
+N13 note ステップは最大8回で打ち切り。上限到達時は途中結果を返す
+N1>N2
+N2>N3
+N3>N5
+N5>N6
+N6>N7
+N7>N8 ツール呼出
+N8>N5 結果を履歴に追加
+N7>N9 回答
+N7>N10 接続失敗
+N9>N11
+N10>N11
+N3>N4 検索
+N5>N12 古い分を省略
+N6>N12 参照
+N8>N12 結果を追記
+## <main>
+N1 start 開始
+N2 end 終了
+N3 proc 'AIエージェントの例: 検索で文脈を集め、ツールを呼びながら回答を作る(図の題材用)。'
+N4 proc import json
+N5 proc import time
+N6 proc MAX_STEPS = 8
+N7 proc MAX_RETRY = 3
+N8 proc main()
+N1>N3
+N3>N4
+N4>N5
+N5>N6
+N6>N7
+N7>N8
+N8>N2
+## Agent.__init__()
+N1 start 開始 (self, llm, tools, index)
+N2 end 終了
+N3 proc self.llm = llm
+N4 proc self.tools = tools
+N5 proc self.index = index
+N6 proc self.history = []
+N1>N3
+N3>N4
+N4>N5
+N5>N6
+N6>N2
+## Agent.run()
+N1 start 開始 (self, question)
+N2 end 終了
+N3 proc context = self.retrieve(question)
+N4 if not context ?
+N5 io print('関連資料なし。一般知識で回答します')
+N6 proc self.history.append({'role': 'user', 'content':…
+N7 if for step in range(MAX_STEPS)
+N8 proc self.trim_history()
+N9 proc reply = self.call_llm()
+N10 if reply is None ?
+N11 io return '申し訳ありません。モデルに接続できませんでした'
+N12 if reply['type'] == 'answer' ?
+N13 proc self.history.append({'role': 'assistant', 'cont…
+N14 io return reply['text']
+N15 if reply['type'] == 'tool_call' ?
+N16 proc result = self.use_tool(reply['name'], reply['ar…
+N17 proc self.history.append({'role': 'tool', 'name': re…
+N18 proc continue
+N19 io print('不明な応答形式:', reply['type'])
+N20 proc break
+N21 io return 'ステップ上限に達したため、途中結果を返します'
+N1>N3
+N3>N4
+N4>N5 Yes
+N5>N6
+N4>N6 No
+N6>N7
+N7>N8 次
+N8>N9
+N9>N10
+N10>N11 Yes
+N11>N2
+N10>N12 No
+N12>N13 Yes
+N13>N14
+N14>N2
+N12>N15 No
+N15>N16 Yes
+N16>N17
+N17>N18
+N18>N7
+N15>N19 No
+N19>N20
+N7>N21 完了
+N20>N21
+N21>N2
+## Agent.retrieve()
+N1 start 開始 (self, question)
+N2 end 終了
+N3 proc hits = []
+N4 if for doc in self.index.search(question, top_k=5)
+N5 if doc.score < 0.35 ?
+N6 proc continue
+N7 proc hits.append(doc.text)
+N8 io return hits
+N1>N3
+N3>N4
+N4>N5 次
+N5>N6 Yes
+N6>N4
+N5>N7 No
+N7>N4
+N4>N8 完了
+N8>N2
+## Agent.trim_history()
+N1 start 開始 (self)
+N2 end 終了
+N3 if len(self.history) > 20 ?
+N4 proc removed = self.history.pop(0)
+N5 if removed['role'] == 'user' ?
+N6 proc self.history.insert(0, {'role': 'system', 'cont…
+N7 proc break
+N1>N3
+N3>N4 Yes
+N4>N5
+N5>N6 Yes
+N6>N7
+N5>N3 No
+N3>N2 No
+N7>N2
+## Agent.call_llm()
+N1 start 開始 (self)
+N2 end 終了
+N3 if for attempt in range(MAX_RETRY)
+N4 if try
+N5 io return self.llm.chat(self.history)
+N6 proc except TimeoutError
+N7 proc time.sleep(2 ** attempt)
+N8 proc except ConnectionError
+N9 io print('接続エラー:', e)
+N10 io return None
+N11 io return None
+N1>N3
+N3>N4 次
+N4>N5 実行
+N5>N2
+N4>N6 例外
+N6>N7
+N4>N8 例外
+N8>N9
+N9>N10
+N10>N2
+N7>N3
+N3>N11 完了
+N11>N2
+## Agent.use_tool()
+N1 start 開始 (self, name, args)
+N2 end 終了
+N3 proc tool = self.tools.get(name)
+N4 if tool is None ?
+N5 io return json.dumps({'error': f'未登録のツール: {name}'})
+N6 if try
+N7 proc with open('tool_log.txt', 'a') as log
+N8 proc log.write(f'{name} {args}\n')
+N9 io return json.dumps(tool(**args))
+N10 proc except Exception
+N11 io return json.dumps({'error': str(e)})
+N1>N3
+N3>N4
+N4>N5 Yes
+N5>N2
+N4>N6 No
+N6>N7 実行
+N7>N8
+N8>N9
+N9>N2
+N6>N10 例外
+N10>N11
+N11>N2
+## main()
+N1 start 開始 ()
+N2 end 終了
+N3 proc agent = Agent(llm=None, tools={}, index=None)
+N4 if True ?
+N5 proc question = input('質問> ')
+N6 if question == 'exit' ?
+N7 proc break
+N8 io print(agent.run(question))
+N1>N3
+N3>N4
+N4>N5 Yes
+N5>N6
+N6>N7 Yes
+N6>N8 No
+N8>N4
+N4>N2 No
+N7>N2

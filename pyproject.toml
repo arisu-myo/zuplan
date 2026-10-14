@@ -1,0 +1,27 @@
+[project]
+name = "zuplan"
+version = "0.1.0"
+description = "Zuplan: 図で描く仕様書。AIがそのまま実装する。(Draw your program spec as a flowchart; let AI implement it.)"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+dependencies = []
+keywords = ["flowchart", "specification", "llm", "ai", "mcp", "diagram", "code-generation"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Code Generators",
+]
+
+[project.scripts]
+zuplan = "flowchart:main"
+flowchart = "flowchart:main"  # 以前の名前(互換のため残す)
+
+[tool.setuptools]
+py-modules = ["flowchart", "editor_page", "fcspec", "store", "landing_page", "mcp_server", "access"]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"

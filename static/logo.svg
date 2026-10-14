@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Zuplan(図 + plan): フローチャートの部品と矢印で「Z」の形を作る。開始 → 判断(斜め線の途中のひし形)→ 終了 -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3b7bea"/>
+      <stop offset="1" stop-color="#2452b8"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="30" height="30" rx="8" fill="url(#bg)"/>
+  <path d="M12 9h12L9 23.5h13" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="6" y="6.5" width="9" height="5" rx="2.5" fill="#fff"/>
+  <path d="M16.5 12.4l3.8 3.85-3.8 3.85-3.8-3.85z" fill="#fff" stroke="#2f6bd8" stroke-width="1"/>
+  <circle cx="23.5" cy="23.5" r="2.5" fill="#fff"/>
+</svg>

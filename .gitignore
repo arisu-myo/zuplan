@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.egg-info/
+out/
+data/
+flowchart.db*
+# 作業用の引き継ぎメモ(ローカルのパスなどを含むので公開しない)
+HANDOFF.md

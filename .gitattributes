@@ -1,0 +1,9 @@
+# 改行はリポジトリ内では LF にそろえる
+* text=auto eol=lf
+
+# start.bat は cmd.exe が正しく読めるよう、取り出したときは Shift_JIS(CP932)・CRLF にする。
+# リポジトリ内では UTF-8 で保存されるので、GitHub 上でも文字化けせずに読める
+*.bat text eol=crlf working-tree-encoding=CP932
+
+*.png binary
+*.svg text
