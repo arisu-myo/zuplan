@@ -40,8 +40,8 @@
 
 **コマンド**:
 ```bash
-git clone <このリポジトリのURL>
-cd <フォルダ>
+git clone https://github.com/arisu-myo/zuplan.git
+cd zuplan
 uv run zuplan --serve                        # 起動して新しい図を開く
 uv run zuplan --serve examples/ai_agent.fc   # 見本の図を取り込んで開く
 ```
